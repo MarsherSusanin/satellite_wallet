@@ -26,7 +26,7 @@ export default {
 
 .navigation{
   position: absolute;
-  top: 51px;
+  top: 50px;
   left: 0;
   display: flex;
   justify-content: center;

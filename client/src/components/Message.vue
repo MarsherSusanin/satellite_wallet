@@ -61,7 +61,7 @@ export default {
     width: 100%;
 
     &__header{
-      padding: 20px;
+      padding: 22px;
       display: flex;
       border-bottom: 2px solid $color_main;
       position: relative;

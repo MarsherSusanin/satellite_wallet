@@ -11,6 +11,11 @@ body {
   font-weight: 400;
   font-size: 12px;
   margin: 10px;
+
+  width: 500px;
+  position: absolute;
+  height: 100vh;
+  left: calc(50% - 250px);
 }
 
 h1, h2, h3, h4, h5, h6 {
