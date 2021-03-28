@@ -41,6 +41,7 @@ from hexbytes import HexBytes
 import asyncio
 from jsonrpc_websocket import Server
 from aiohttp_json_rpc import JsonRpcClient
+from aiohttp import web
 
 import websockets
 from jsonrpcclient.clients.websockets_client import WebSocketsClient
@@ -183,7 +184,7 @@ def is_valid_session_id(person):
             k = (now_d-a_d)/60
             k = k - int(a_k)
             b = str(k)
-            #print(k)
+            print(k)
             #if k > 0:
             #    b = 'wrong lasttime'
             #else:
@@ -650,7 +651,7 @@ def get_kava_wallet_balans(person):
 @name_space__newauth.route("/")
 #@cross_origin() # allow all origins all methods.
 class NewAuthorize(Resource):
-    @app_api.doc(responses={ 200: 'OK', 400: 'Invalid Argument', 500: 'Mapping Key Error' })
+    @app_api.doc(responses={ 200: 'OK', 400: 'Invalid Argument', 401: 'Session timed out', 500: 'Mapping Key Error' })
     @app_api.expect(model__newauth)
     def post(self):
         try:
@@ -676,7 +677,7 @@ class NewAuthorize(Resource):
 @name_space__auth.route("/")
 #@cross_origin() # allow all origins all methods.
 class Authorize(Resource):
-    @app_api.doc(responses={ 200: 'OK', 400: 'Invalid Argument', 500: 'Mapping Key Error' })
+    @app_api.doc(responses={ 200: 'OK', 400: 'Invalid Argument', 401: 'Session timed out', 500: 'Mapping Key Error' })
     @app_api.expect(model__auth)
     def post(self):
         try:
@@ -703,7 +704,7 @@ class Authorize(Resource):
 @name_space__generate_mnemonic.route("/")
 #@cross_origin() # allow all origins all methods.
 class Generate_mnemonic(Resource):
-    @app_api.doc(responses={ 200: 'OK', 400: 'Invalid Argument', 500: 'Mapping Key Error' })
+    @app_api.doc(responses={ 200: 'OK', 400: 'Invalid Argument', 401: 'Session timed out', 500: 'Mapping Key Error' })
     @app_api.expect(model___generate_mnemonic)
     def post(self):
         try:
@@ -722,8 +723,10 @@ class Generate_mnemonic(Resource):
                     return person #disease
                 else:
                     person["status"] = "Время сессии истекло, войдите в систему заново по своему Логину и Паролю."
+                    #name_space__generate_mnemonic.abort(401, e.__doc__, status = "Время сессии истекло, войдите в систему заново по своему Логину и Паролю.", statusCode = "401")
+                    raise web.HTTPUnauthorized
                     #person.headers.add('Access-Control-Allow-Origin', '*')
-                    return person    
+                    #return person    
             else:
                 person = {
                     "status" : "Пользователь с указанным идентификатором не зарегистрован в Базе данных",
@@ -733,6 +736,8 @@ class Generate_mnemonic(Resource):
                 return person
         except KeyError as e:
             name_space__generate_mnemonic.abort(500, e.__doc__, status = "Could not retrieve information", statusCode = "500")
+        except web.HTTPUnauthorized as e:
+            name_space__generate_mnemonic.abort(401, e.__doc__, status = "Время сессии истекло, войдите в систему заново по своему Логину и Паролю.", statusCode = "401")    
         except Exception as e:
             name_space__generate_mnemonic.abort(400, e.__doc__, status = "Could not retrieve information", statusCode = "400") 
 
@@ -740,7 +745,7 @@ class Generate_mnemonic(Resource):
 @name_space__generate_wallet.route("/")
 #@cross_origin() # allow all origins all methods.
 class Generate_wallet(Resource):
-    @app_api.doc(responses={ 200: 'OK', 400: 'Invalid Argument', 500: 'Mapping Key Error' })
+    @app_api.doc(responses={ 200: 'OK', 400: 'Invalid Argument', 401: 'Session timed out', 500: 'Mapping Key Error' })
     @app_api.expect(model___generate_wallet)
     def post(self):
         try:
@@ -759,8 +764,13 @@ class Generate_wallet(Resource):
                     return person #disease
                 else:
                     person["status"] = "Время сессии истекло, войдите в систему заново по своему Логину и Паролю."
+                    #print(person["status"])
+                    #name_space__generate_wallet.abort(401, e.__doc__, status = "Время сессии истекло, войдите в систему заново по своему Логину и Паролю.", statusCode = "401")
+                    raise web.HTTPUnauthorized
+                    #name_space__generate_wallet.abort(401, status = "Время сессии истекло, войдите в систему заново по своему Логину и Паролю.", statusCode = "401")
                     #person.headers.add('Access-Control-Allow-Origin', '*')
-                    return person    
+                    #return person
+                    #return web.HTTPUnauthorized(body='Время сессии истекло, войдите в систему заново по своему Логину и Паролю.')    
             else:
                 person = {
                     "status" : "Пользователь с указанным идентификатором не зарегистрован в Базе данных",
@@ -770,12 +780,14 @@ class Generate_wallet(Resource):
                 return person
         except KeyError as e:
             name_space__generate_wallet.abort(500, e.__doc__, status = "Could not retrieve information", statusCode = "500")
+        except web.HTTPUnauthorized as e:
+            name_space__generate_wallet.abort(401, e.__doc__, status = "Время сессии истекло, войдите в систему заново по своему Логину и Паролю.", statusCode = "401")     
         except Exception as e:
-            name_space__generate_wallet.abort(400, e.__doc__, status = "Could not retrieve information", statusCode = "400") 
+            name_space__generate_wallet.abort(400, e.__doc__, status = "Could not retrieve information", statusCode = "400")
 
 @name_space__get_balans.route("/")
 class Get_balans(Resource):
-    @app_api.doc(responses={ 200: 'OK', 400: 'Invalid Argument', 500: 'Mapping Key Error' })
+    @app_api.doc(responses={ 200: 'OK', 400: 'Invalid Argument', 401: 'Session timed out', 500: 'Mapping Key Error' })
     @app_api.expect(model___get_balans)
     def post(self):
         try:
@@ -804,8 +816,10 @@ class Get_balans(Resource):
                     return person #disease
                 else:
                     person["status"] = "Время сессии истекло, войдите в систему заново по своему Логину и Паролю."
+                    raise web.HTTPUnauthorized
+                    #name_space__get_balans.abort(401, e.__doc__, status = "Время сессии истекло, войдите в систему заново по своему Логину и Паролю.", statusCode = "401")
                     #person.headers.add('Access-Control-Allow-Origin', '*')
-                    return person    
+                    #return person    
             else:
                 person = {
                     "status" : "Пользователь с указанным идентификатором не зарегистрован в Базе данных",
@@ -815,12 +829,14 @@ class Get_balans(Resource):
                 return person
         except KeyError as e:
             name_space__get_balans.abort(500, e.__doc__, status = "Could not retrieve information", statusCode = "500")
+        except web.HTTPUnauthorized as e:
+            name_space__get_balans.abort(401, e.__doc__, status = "Время сессии истекло, войдите в систему заново по своему Логину и Паролю.", statusCode = "401")    
         except Exception as e:
             name_space__get_balans.abort(400, e.__doc__, status = "Could not retrieve information", statusCode = "400")
 
 @name_space__send_tokens.route("/")
 class Send_tokens(Resource):
-    @app_api.doc(responses={ 200: 'OK', 400: 'Invalid Argument', 500: 'Mapping Key Error' })
+    @app_api.doc(responses={ 200: 'OK', 400: 'Invalid Argument', 401: 'Session timed out', 500: 'Mapping Key Error' })
     @app_api.expect(model___send_tokens)
     def post(self):
         try:
@@ -854,8 +870,10 @@ class Send_tokens(Resource):
                     return person #disease
                 else:
                     person["status"] = "Время сессии истекло, войдите в систему заново по своему Логину и Паролю."
+                    #name_space__send_tokens.abort(401, e.__doc__, status = "Время сессии истекло, войдите в систему заново по своему Логину и Паролю.", statusCode = "401")
+                    raise web.HTTPUnauthorized
                     #person.headers.add('Access-Control-Allow-Origin', '*')
-                    return person    
+                    #return person    
             else:
                 person = {
                     "status" : "Пользователь с указанным идентификатором не зарегистрован в Базе данных",
@@ -865,6 +883,8 @@ class Send_tokens(Resource):
                 return person
         except KeyError as e:
             name_space__send_tokens.abort(500, e.__doc__, status = "Could not retrieve information", statusCode = "500")
+        except web.HTTPUnauthorized as e:
+            name_space__send_tokens.abort(401, e.__doc__, status = "Время сессии истекло, войдите в систему заново по своему Логину и Паролю.", statusCode = "401")    
         except Exception as e:
             name_space__send_tokens.abort(400, e.__doc__, status = "Could not retrieve information", statusCode = "400")
 
