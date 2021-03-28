@@ -56,6 +56,8 @@ from hdwallet.derivations import BIP44Derivation
 from hdwallet.utils import generate_mnemonic
 from typing import Optional
 
+from credentials import xdbname, xuser, xpassword, xhost
+
 
 app_dir = os.path.abspath(os.path.dirname(__file__))
 
@@ -77,10 +79,7 @@ CORS(flask_app)
 #CORS(app, resources=r'/api/*')
 #app.config['CORS_HEADERS'] = 'Access-Control-Allow-Origin'
 
-xdbname='walletdb'
-xuser='alex'
-xpassword='911alex'
-xhost='localhost'
+
 
 name_space__newauth = app_api.namespace('api/1.0/newauth', description='API / Версия API / API-авторизации нового пользователя в системе мультивалютного блокчейн-кошелька')
 name_space__auth = app_api.namespace('api/1.0/auth', description='API / Версия API / API-авторизации пользователя в системе мультивалютного блокчейн-кошелька')
