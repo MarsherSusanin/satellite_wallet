@@ -5,6 +5,8 @@
 
 ## Решение
 
+[Figma прототип](https://www.figma.com/proto/09DiI8lXAqtYVXyaqxyRsG/SPACE?node-id=203%3A86&viewport=352%2C1541%2C0.15150301158428192&scaling=scale-down&page-id=139%3A275)
+
 **Криптокошелек с внедрением IBC протокола**, что дает нам следующее:
 
 1. Возможность **хранить криптоактивы из различных сетей**
