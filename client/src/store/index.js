@@ -47,6 +47,8 @@ export default new Vuex.Store({
     registration ({ commit, dispatch }, data) {
       commit('setAuth', data)
 
+      window.localStorage.clear()
+
       return dispatch('send', {
         method: 'post',
         url: `${API}newauth/`,
@@ -69,6 +71,15 @@ export default new Vuex.Store({
         .then(({ user_id, session_id }) => {
           this.commit('setUser', { user_id, session_id })
         })
+    },
+    sendTokens ({ commit, dispatch }, data) {
+      commit('setAuth', data)
+
+      return dispatch('send', {
+        method: 'post',
+        url: `${API}sendtokens/`,
+        data
+      })
     },
     getSeed ({ state, commit }) {
       return axios({
@@ -114,20 +125,28 @@ export default new Vuex.Store({
             console.log(response)
             if (response.data.address) {
               console.log(response.data.address)
+
               this.dispatch('saveWallet', response.data)
               return response.address
             }
           })
         })
     },
-    saveWallet ({ commit }, { wallet_name, address }) {
+    saveWallet ({ state, commit }, data) {
       const wallets = JSON.parse(window.localStorage.getItem('wallets')) || []
-      wallets.push({ wallet_name, address })
+      wallets.push({
+        user_id: state.user.user_id,
+        name: data.coin_type === 'Atom' ? 'cosmos' : 'kava',
+        suffix: data.coin_type === 'Atom' ? 'ATOM' : 'KAVA',
+        address: data.address,
+        private_key: data.private_key
+      })
       window.localStorage.setItem('wallets', JSON.stringify(wallets))
       commit('setWallets', wallets)
     },
     loadWallets ({ commit }) {
-      commit('setWallets', JSON.parse(window.localStorage.getItem('wallets')))
+      const wallets = JSON.parse(window.localStorage.getItem('wallets'))
+      commit('setWallets', wallets)
     },
     saveSeed ({ commit }, seed) {
       window.localStorage.setItem('mnemonic', seed)
